@@ -8,7 +8,7 @@ import tensorflow as tf
 
 class IAutoRecEnhanced2:
     es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=5)
-    mc = ModelCheckpoint('best_autorec_enhanced_model.h5', monitor='val_loss', mode='min', save_best_only=True)
+    mc = ModelCheckpoint('best_autorec_enhanced2_model.h5', monitor='val_loss', mode='min', save_best_only=True)
 
     # es = EarlyStopping(monitor='loss', mode='min', verbose=1, patience=5)
     # mc = ModelCheckpoint('best_autorec_enhanced_model.h5', monitor='loss', mode='min', save_best_only=True)
