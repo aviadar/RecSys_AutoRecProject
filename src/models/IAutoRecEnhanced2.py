@@ -27,14 +27,23 @@ class IAutoRecEnhanced2:
 
     def build_opt_model(self):
         input_layer = Input(shape=(self.items_num,), name='item_rating')
-        hidden_layer_encoder = Dense(self.hidden_units * self.hidden_layer_factor, activation=self.first_activation,
-                                     name='hidden_encoder', kernel_regularizer=regularizers.l2(self.reg))(input_layer)
+        hidden_layer_encoder_1 = Dense(self.hidden_units * self.hidden_layer_factor * self.hidden_layer_factor,
+                                       activation=self.first_activation,
+                                       name='hidden_encoder_1', kernel_regularizer=regularizers.l2(self.reg))(
+            input_layer)
+        hidden_layer_encoder_2 = Dense(self.hidden_units * self.hidden_layer_factor, activation=self.first_activation,
+                                       name='hidden_encoder_2', kernel_regularizer=regularizers.l2(self.reg))(
+            hidden_layer_encoder_1)
         dense = Dense(self.hidden_units, activation=self.first_activation, name='latent_dim',
-                      kernel_regularizer=regularizers.l2(self.reg))(hidden_layer_encoder)
-        hidden_layer_decoder = Dense(self.hidden_units * self.hidden_layer_factor, activation=self.last_activation,
-                                     name='hidden_decoder', kernel_regularizer=regularizers.l2(self.reg))(dense)
+                      kernel_regularizer=regularizers.l2(self.reg))(hidden_layer_encoder_2)
+        hidden_layer_decoder_1 = Dense(self.hidden_units * self.hidden_layer_factor, activation=self.last_activation,
+                                       name='hidden_decoder_1', kernel_regularizer=regularizers.l2(self.reg))(dense)
+        hidden_layer_decoder_2 = Dense(self.hidden_units * self.hidden_layer_factor * self.hidden_layer_factor,
+                                       activation=self.last_activation,
+                                       name='hidden_decoder_1', kernel_regularizer=regularizers.l2(self.reg))(
+            hidden_layer_decoder_1)
         output_layer = Dense(self.items_num, activation=self.last_activation, name='item_pred_rating',
-                             kernel_regularizer=regularizers.l2(self.reg))(hidden_layer_decoder)
+                             kernel_regularizer=regularizers.l2(self.reg))(hidden_layer_decoder_2)
         self.model = Model(input_layer, output_layer)
 
         if self.optimizer == 'Adam':

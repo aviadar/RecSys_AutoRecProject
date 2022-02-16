@@ -47,18 +47,19 @@ class IAutoRecEnhanced:
 
     def model_builder(self, hp):
         hp_hidden_units = hp.Int('hidden_units', min_value=100, max_value=300, step=100)
+        hidden_layer_factor = hp.Choice('hidden_layer_factor', values=[2, 3])
         hp_learning_rate = hp.Choice('learning_rate', values=[1e-3, 1e-4])
         hp_reg = hp.Choice('reg', values=[0.001, 0.0001])
-        hp_first_activation = hp.Choice('first_activation', values=['elu'])
-        hp_last_activation = hp.Choice('last_activation', values=['elu'])
+        hp_first_activation = hp.Choice('first_activation', values=['relu', 'elu'])
+        hp_last_activation = hp.Choice('last_activation', values=['relu', 'elu'])
 
         input_layer = Input(shape=(self.items_num,), name='item_rating')
-        hidden_layer_encoder = Dense(hp_hidden_units, activation=hp_first_activation,
-                                       name='hidden_encoder_2', kernel_regularizer=regularizers.l2(hp_reg))(
+        hidden_layer_encoder = Dense(hidden_layer_factor*hp_hidden_units, activation=hp_first_activation,
+                                       name='hidden_encoder_1', kernel_regularizer=regularizers.l2(hp_reg))(
             input_layer)
         dense = Dense(hp_hidden_units, activation=hp_first_activation, name='latent_dim',
                       kernel_regularizer=regularizers.l2(hp_reg))(hidden_layer_encoder)
-        hidden_layer_decoder = Dense(hp_hidden_units, activation=hp_last_activation,
+        hidden_layer_decoder = Dense(hidden_layer_factor*hp_hidden_units, activation=hp_last_activation,
                                        name='hidden_decoder_1', kernel_regularizer=regularizers.l2(hp_reg))(dense)
         output_layer = Dense(self.items_num, activation=hp_last_activation, name='item_pred_rating',
                              kernel_regularizer=regularizers.l2(hp_reg))(hidden_layer_decoder)
