@@ -40,7 +40,7 @@ class IAutoRecEnhanced2:
                                        name='hidden_decoder_1', kernel_regularizer=regularizers.l2(self.reg))(dense)
         hidden_layer_decoder_2 = Dense(self.hidden_units * self.hidden_layer_factor * self.hidden_layer_factor,
                                        activation=self.last_activation,
-                                       name='hidden_decoder_1', kernel_regularizer=regularizers.l2(self.reg))(
+                                       name='hidden_decoder_2', kernel_regularizer=regularizers.l2(self.reg))(
             hidden_layer_decoder_1)
         output_layer = Dense(self.items_num, activation=self.last_activation, name='item_pred_rating',
                              kernel_regularizer=regularizers.l2(self.reg))(hidden_layer_decoder_2)
