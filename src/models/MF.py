@@ -44,7 +44,7 @@ class MF:
         user_input = Input(shape=(1,), name='user_input', dtype='int32')
         item_input = Input(shape=(1,), name='item_input', dtype='int32')
 
-        hp_latent_dim = hp.Int('latent_dim', min_value=8, max_value=40, step=8)
+        hp_latent_dim = hp.Int('latent_dim', min_value=10, max_value=40, step=10)
 
         user_embedding = Embedding(input_dim=self.users_num, output_dim=hp_latent_dim, name='user_embedding')(
             user_input)
@@ -57,7 +57,7 @@ class MF:
         pred = keras.layers.dot([user_latent, item_latent], axes=1, normalize=False)
         self.model = Model(inputs=[user_input, item_input], outputs=pred)
 
-        hp_learning_rate = hp.Choice('learning_rate', values=[1e-2, 1e-3, 1e-4])
+        hp_learning_rate = hp.Choice('learning_rate', values=[1e-3, 1e-4])
 
         if self.optimizer == 'Adam':
             self.model.compile(optimizer=Adam(learning_rate=hp_learning_rate), loss=self.loss)
@@ -66,7 +66,7 @@ class MF:
         self.model.summary()
         return self.model
 
-    def fit(self, user_input, item_input, labels, batch_size=8168, epochs=100, verbose=1):
+    def fit(self, user_input, item_input, labels, batch_size=512, epochs=100, verbose=1):
         self.hist = self.model.fit([np.array(user_input), np.array(item_input)],  # input
                                    np.array(labels),  # labels
                                    validation_split=0.1,
