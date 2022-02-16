@@ -6,7 +6,7 @@ from tensorflow.keras import regularizers
 import tensorflow as tf
 
 
-class IAutoRecEnhanced:
+class IAutoRecEnhanced2:
     es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=5)
     mc = ModelCheckpoint('best_autorec_enhanced_model.h5', monitor='val_loss', mode='min', save_best_only=True)
 
@@ -39,34 +39,43 @@ class IAutoRecEnhanced:
 
         if self.optimizer == 'Adam':
             # self.model.compile(optimizer=Adam(learning_rate=learning_rate), loss=loss)
-            self.model.compile(optimizer=Adam(learning_rate=self.learning_rate), loss=IAutoRecEnhanced.masked_rmse)
+            self.model.compile(optimizer=Adam(learning_rate=self.learning_rate), loss=IAutoRecEnhanced2.masked_rmse)
         else:
             raise Exception('Optimizer not implemented')
 
         self.model.summary()
 
     def model_builder(self, hp):
-        hp_hidden_units = hp.Int('hidden_units', min_value=100, max_value=300, step=100)
+        # hp_hidden_units = hp.Int('hidden_units', min_value=100, max_value=400, step=100)
+        hp_hidden_units = hp.Choice('hidden_layer_factor', values=[50, 100])
+        hp_hidden_layer_factor = hp.Choice('hidden_layer_factor', values=[2, 3])
         hp_learning_rate = hp.Choice('learning_rate', values=[1e-3, 1e-4])
         hp_reg = hp.Choice('reg', values=[0.001, 0.0001])
         hp_first_activation = hp.Choice('first_activation', values=['elu'])
         hp_last_activation = hp.Choice('last_activation', values=['elu'])
 
         input_layer = Input(shape=(self.items_num,), name='item_rating')
-        hidden_layer_encoder = Dense(hp_hidden_units, activation=hp_first_activation,
+        hidden_layer_encoder_1 = Dense(hp_hidden_units * hp_hidden_layer_factor * hp_hidden_layer_factor,
+                                       activation=hp_first_activation,
+                                       name='hidden_encoder_1', kernel_regularizer=regularizers.l2(hp_reg))(input_layer)
+        hidden_layer_encoder_2 = Dense(hp_hidden_units * hp_hidden_layer_factor, activation=hp_first_activation,
                                        name='hidden_encoder_2', kernel_regularizer=regularizers.l2(hp_reg))(
-            input_layer)
+            hidden_layer_encoder_1)
         dense = Dense(hp_hidden_units, activation=hp_first_activation, name='latent_dim',
-                      kernel_regularizer=regularizers.l2(hp_reg))(hidden_layer_encoder)
-        hidden_layer_decoder = Dense(hp_hidden_units, activation=hp_last_activation,
+                      kernel_regularizer=regularizers.l2(hp_reg))(hidden_layer_encoder_2)
+        hidden_layer_decoder_1 = Dense(hp_hidden_units * hp_hidden_layer_factor, activation=hp_last_activation,
                                        name='hidden_decoder_1', kernel_regularizer=regularizers.l2(hp_reg))(dense)
+        hidden_layer_decoder_2 = Dense(hp_hidden_units * hp_hidden_layer_factor * hp_hidden_layer_factor,
+                                       activation=hp_last_activation,
+                                       name='hidden_decoder_2', kernel_regularizer=regularizers.l2(hp_reg))(
+            hidden_layer_decoder_1)
         output_layer = Dense(self.items_num, activation=hp_last_activation, name='item_pred_rating',
-                             kernel_regularizer=regularizers.l2(hp_reg))(hidden_layer_decoder)
+                             kernel_regularizer=regularizers.l2(hp_reg))(hidden_layer_decoder_2)
         self.model = Model(input_layer, output_layer)
 
         if self.optimizer == 'Adam':
             # self.model.compile(optimizer=Adam(learning_rate=hp_learning_rate), loss=self.loss)
-            self.model.compile(optimizer=Adam(learning_rate=hp_learning_rate), loss=IAutoRecEnhanced.masked_rmse)
+            self.model.compile(optimizer=Adam(learning_rate=hp_learning_rate), loss=IAutoRecEnhanced2.masked_rmse)
         else:
             raise Exception('Optimizer not implemented')
 
@@ -87,7 +96,7 @@ class IAutoRecEnhanced:
         self.hist = self.model.fit(x=rating_mat, y=rating_mat2,
                                    validation_split=0.1,
                                    batch_size=batch_size, epochs=epochs, verbose=verbose,
-                                   callbacks=[IAutoRecEnhanced.es, IAutoRecEnhanced.mc])
+                                   callbacks=[IAutoRecEnhanced2.es, IAutoRecEnhanced2.mc])
 
     def predict(self, rating_mat, batch_size=512, verbose=1):
         self.predictions = self.model.predict(rating_mat,
