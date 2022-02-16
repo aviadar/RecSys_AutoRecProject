@@ -57,24 +57,24 @@ class IAutoRecEnhanced2:
     def model_builder(self, hp):
         # hp_hidden_units = hp.Int('hidden_units', min_value=100, max_value=400, step=100)
         hp_hidden_units = hp.Int('hidden_units', min_value=50, max_value=100, step=50)
-        # hp_hidden_layer_factor = hp.Choice('hidden_layer_factor', values=[2, 3])
+        hp_hidden_layer_factor = hp.Choice('hidden_layer_factor', values=[2, 3])
         hp_learning_rate = hp.Choice('learning_rate', values=[1e-3, 1e-4])
         hp_reg = hp.Choice('reg', values=[0.001, 0.0001])
         hp_first_activation = hp.Choice('first_activation', values=['elu', 'sigmoid', 'relu'])
         hp_last_activation = hp.Choice('last_activation', values=['elu', 'sigmoid', 'relu'])
 
         input_layer = Input(shape=(self.items_num,), name='item_rating')
-        hidden_layer_encoder_1 = Dense(hp_hidden_units * 4,
+        hidden_layer_encoder_1 = Dense(hp_hidden_units * hp_hidden_layer_factor * hp_hidden_layer_factor,
                                        activation=hp_first_activation,
                                        name='hidden_encoder_1', kernel_regularizer=regularizers.l2(hp_reg))(input_layer)
-        hidden_layer_encoder_2 = Dense(hp_hidden_units * 2, activation=hp_first_activation,
+        hidden_layer_encoder_2 = Dense(hp_hidden_units * hp_hidden_layer_factor, activation=hp_first_activation,
                                        name='hidden_encoder_2', kernel_regularizer=regularizers.l2(hp_reg))(
             hidden_layer_encoder_1)
         dense = Dense(hp_hidden_units, activation=hp_first_activation, name='latent_dim',
                       kernel_regularizer=regularizers.l2(hp_reg))(hidden_layer_encoder_2)
-        hidden_layer_decoder_1 = Dense(hp_hidden_units * 2, activation=hp_last_activation,
+        hidden_layer_decoder_1 = Dense(hp_hidden_units * hp_hidden_layer_factor, activation=hp_last_activation,
                                        name='hidden_decoder_1', kernel_regularizer=regularizers.l2(hp_reg))(dense)
-        hidden_layer_decoder_2 = Dense(hp_hidden_units * 4,
+        hidden_layer_decoder_2 = Dense(hp_hidden_units * hp_hidden_layer_factor * hp_hidden_layer_factor,
                                        activation=hp_last_activation,
                                        name='hidden_decoder_2', kernel_regularizer=regularizers.l2(hp_reg))(
             hidden_layer_decoder_1)
