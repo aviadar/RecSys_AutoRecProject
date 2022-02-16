@@ -60,8 +60,8 @@ class IAutoRecEnhanced2:
         hp_hidden_layer_factor = hp.Choice('hidden_layer_factor', values=[2, 3])
         hp_learning_rate = hp.Choice('learning_rate', values=[1e-3, 1e-4])
         hp_reg = hp.Choice('reg', values=[0.001, 0.0001])
-        hp_first_activation = hp.Choice('first_activation', values=['elu'])
-        hp_last_activation = hp.Choice('last_activation', values=['elu'])
+        hp_first_activation = hp.Choice('first_activation', values=['elu', 'sigmoid', 'relu'])
+        hp_last_activation = hp.Choice('last_activation', values=['elu', 'sigmoid', 'relu'])
 
         input_layer = Input(shape=(self.items_num,), name='item_rating')
         hidden_layer_encoder_1 = Dense(hp_hidden_units * hp_hidden_layer_factor * hp_hidden_layer_factor,
