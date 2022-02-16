@@ -3,5 +3,7 @@
 * Comparison to MF baseline model
 * Suggesting an enhanced AutoRec Model
 ## Running Instructions
-* Run the notebook in colab or similar environment
+* Run the notebooks in colab or similar environment
+* Movielens-1M: autorec_project_movielens.ipynb
+* Netflix Prize: autorec_project_netflix.ipynb
 * Note that the used google drive loaded with the Netflix-Prize dataset priorly
