@@ -77,4 +77,5 @@ class Metrics:
                 'MRR_5': Metrics.MRR(df_true, df_pred, top_n=5),
                 'MRR_10': Metrics.MRR(df_true, df_pred, top_n=10),
                 'NDCG_5': Metrics.NDCG(df_true, df_pred, top_n=5),
-                'NDCG_10': Metrics.NDCG(df_true, df_pred, top_n=10)}
+                'NDCG_10': Metrics.NDCG(df_true, df_pred, top_n=10),
+                'NDCG_100': Metrics.NDCG(df_true, df_pred, top_n=100)}
